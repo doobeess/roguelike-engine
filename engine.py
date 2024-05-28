@@ -1,5 +1,6 @@
 from tcod.context import Context
 from tcod.console import Console
+from tcod.map import compute_fov
 
 import tcod
 
@@ -29,14 +30,21 @@ class Engine:
             map_width: int,
             map_height: int
         ):
-        self.screen_handler = screen_handler
+        
         self.game_map = game_map
         self.player = player
         self.message_log = message_log
+
+        # Screen handlers render certain parts of the screen,
+        # and also determine what user input does based on the
+        # current screen.
         self.main_screen_handler = screen_handler
         self.screen_handler_list = [screen_handler]
         self.active_screen_handler = screen_handler
+
         self.context = context
+
+        self.update_fov()
 
         self.map_width = map_width
         self.map_height = map_height
@@ -72,6 +80,16 @@ class Engine:
     def render(self, console: Console) -> None:
         for screen_handler in self.screen_handler_list:
             screen_handler.on_render(console, self)
+
+    def update_fov(self) -> None:
+        """Recompute the visible area based on the players point of view."""
+        self.game_map.visible[:] = compute_fov(
+            self.game_map.tiles["transparent"],
+            (self.player.x, self.player.y),
+            radius=6,
+        )
+        # If a tile is "visible" it should be added to "explored".
+        self.game_map.explored |= self.game_map.visible
 
     def main_loop(self, console):
         while True:

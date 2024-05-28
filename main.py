@@ -22,6 +22,10 @@ def main() -> None:
     map_width = 60
     map_height = 40
 
+    fov_algorithm = 0
+    fov_light_walls = True
+    fov_radius = 10
+
     tileset = tcod.tileset.load_tilesheet(
         "font.png", 32, 8, tcod.tileset.CHARMAP_TCOD
     )

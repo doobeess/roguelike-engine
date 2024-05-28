@@ -47,7 +47,9 @@ class MainGameScreenHandler(ScreenHandler):
         
         is_timeless = action.perform(engine, engine.player, engine.message_log)
         if not is_timeless:
+            engine.update_fov()
             return 2
+        
         return 1
     
     def ev_keydown(self, event: tcod.event.KeyDown):
@@ -162,11 +164,11 @@ class MultipleChoiceScreenHandler(ScreenHandler):
         )
         console.print(x+1, y+1, self.title)
         for i, choice in enumerate(self.choices):
-            fg = color.white
-            bg = color.black
+            fg = color.WHITE
+            bg = color.BLACK
             if choice == self.get_pointed():
-                fg = color.black
-                bg = color.white
+                fg = color.BLACK
+                bg = color.WHITE
             console.print(x+1, y+i+3, str(i+1) + " - " + choice, fg, bg)
 
 
