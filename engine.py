@@ -9,7 +9,7 @@ from typing import Set, Iterable, Any
 from game_map import GameMap
 
 from player import Player
-from input_handlers import MainGameScreenHandler, ViewInventoryScreenHandler, DropScreenHandler
+from screen_handlers import MainGameScreenHandler, ViewInventoryScreenHandler, DropScreenHandler
 
 from message_log import MessageLog
 

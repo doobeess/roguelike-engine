@@ -16,3 +16,8 @@ class Player(Fighter):
         item.x = self.x
         item.y = self.y
         game_map.items.append(item)
+
+    def has_items(self):
+        if len(self.inventory) > 0:
+            return True
+        return False

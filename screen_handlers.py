@@ -46,11 +46,11 @@ class MainGameScreenHandler(ScreenHandler):
             return 0
         
         is_timeless = action.perform(engine, engine.player, engine.message_log)
-        if not is_timeless:
-            engine.update_fov()
-            return 2
+        if is_timeless:
+            return 1
         
-        return 1
+        engine.update_fov()
+        return 2
     
     def ev_keydown(self, event: tcod.event.KeyDown):
 
@@ -128,8 +128,9 @@ class MultipleChoiceScreenHandler(ScreenHandler):
         else:
             self.select(engine)
             engine.delete_current_screen_handler()
+            return 2
 
-        return 2
+        return 1
     
     def ev_keydown(self, event: tcod.event.KeyDown):
         key = event.sym
@@ -161,12 +162,14 @@ class MultipleChoiceScreenHandler(ScreenHandler):
             height=len(self.choices)
             +2 # Fit all the choices. TODO: Add scrolling functionality.
             +2, # Add room for title. 
+            fg=color.WHITE,
+            bg=color.BLACK,
         )
         console.print(x+1, y+1, self.title)
         for i, choice in enumerate(self.choices):
             fg = color.WHITE
             bg = color.BLACK
-            if choice == self.get_pointed():
+            if i==self.pointer-1:
                 fg = color.BLACK
                 bg = color.WHITE
             console.print(x+1, y+i+3, str(i+1) + " - " + choice, fg, bg)

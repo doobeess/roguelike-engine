@@ -56,11 +56,36 @@ class MovementAction(DirectionalAction):
         dest_y = entity.y + self.dy
 
         if not engine.game_map.in_bounds(dest_x, dest_y):
-            return  # Destination is out of bounds.
+            return True # Destination is out of bounds.
         if not engine.game_map.tiles["walkable"][dest_x, dest_y]:
-            return  # Destination is blocked by a tile.
+            return True # Destination is blocked by a tile.
         
         entity.move(self.dx, self.dy)
+
+
+def construct_attack_sentence(attacker, target, player):
+    text = ""
+
+    if attacker == player:
+        text += "You hit "
+    else:
+        text += "The " + attacker.name + " hits "
+
+    if target == player:
+        text += "you"
+    else:
+        text += "the " + target.name
+
+    text += "!"
+
+    if target == player:
+        text_color = (255, 0, 0)
+    elif attacker == player:
+        text_color = (54, 131, 255)
+    else:
+        text_color = (255, 255, 255)
+
+    return text, text_color
 
 
 class MeleeAction(DirectionalAction):
@@ -73,12 +98,12 @@ class MeleeAction(DirectionalAction):
         if not target:
             target = engine.player
 
-        if target != engine.player:
-            target.hp -= 1
-            message_log.log(f"You hit the {target.name}!", (54, 131, 255))
-        else:
-            engine.player.hp -= 1
-            message_log.log(f"The {entity.name} hits you!", (255,0,0))
+        attacker = entity
+        
+        target.hp -= 1
+        message_log.log(
+            *construct_attack_sentence(attacker, target, engine.player)
+        )
 
 class WaitAction(Action):
     def __init__(self):
@@ -96,15 +121,21 @@ class PickUpAction(Action):
             item = engine.game_map.get_item_at(x,y)
             engine.player.pick_up(item, engine.game_map)
             message_log.log(f"You pick up the {item.name}.", (0,255,0))
+        else:
+            message_log.log("There are no items here.")
+            return True
 
 class DropAction(Action):
     def perform(self, engine: Engine, entity: Entity, message_log: MessageLog):
-        engine.add_menu('drop')
+        if engine.player.has_items():
+            engine.add_menu('drop')
+        else:
+            engine.message_log.log('You are carrying nothing.')
         return 1
 
 class ViewInventoryAction(Action):
     def perform(self, engine: Engine, entity: Entity, message_log: MessageLog) -> None:
-        if len(engine.player.inventory) > 0:
+        if engine.player.has_items():
             engine.add_menu('inventory')
         else:
             engine.message_log.log('You are carrying nothing.')
